@@ -2,33 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2b4c203b-cbce-4ea0-a627-cf7797df9212" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_quarto.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/about.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/search.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/bootstrap/bootstrap-a0f9fd0d421825b736dc1bbcbcba2219.min.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/bootstrap/bootstrap-icons.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/bootstrap/bootstrap-icons.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/bootstrap/bootstrap.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/clipboard/clipboard.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/quarto-html/anchor.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/quarto-html/popper.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/quarto-html/quarto.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/quarto-html/tabsets/tabsets.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/quarto-html/tippy.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/quarto-html/tippy.umd.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/quarto-nav/headroom.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/quarto-nav/quarto-nav.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/quarto-search/autocomplete.umd.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/quarto-search/fuse.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/site_libs/quarto-search/quarto-search.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_site/styles.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/about.qmd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/index.qmd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/styles.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/search.json" beforeDir="false" afterPath="$PROJECT_DIR$/docs/search.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.qmd" beforeDir="false" afterPath="$PROJECT_DIR$/index.qmd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
