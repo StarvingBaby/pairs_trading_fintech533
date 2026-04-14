@@ -3,12 +3,13 @@ project:
   output-dir: docs
 
 website:
-  title: "pairs_trading"
+  title: "Breakout Trading Strategy"
   navbar:
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
+      - href: about.qmd
+        text: Notes
 
 format:
   html:

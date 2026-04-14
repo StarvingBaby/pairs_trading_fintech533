@@ -1,0 +1,13 @@
+window,metric,value
+in-sample,Average Return per Trade,0.038031
+in-sample,Annualized Sharpe Ratio,0.967652
+in-sample,Win Rate,0.4375
+in-sample,Profit Factor,1.802024
+in-sample,Max Drawdown ($),-1475.2
+in-sample,Total Trades,16.0
+out-of-sample,Average Return per Trade,0.021541
+out-of-sample,Annualized Sharpe Ratio,0.930569
+out-of-sample,Win Rate,0.555556
+out-of-sample,Profit Factor,1.617702
+out-of-sample,Max Drawdown ($),-3054.95
+out-of-sample,Total Trades,9.0

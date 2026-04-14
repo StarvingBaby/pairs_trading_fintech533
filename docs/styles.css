@@ -1,1 +1,118 @@
 /* css styles */
+:root {
+  --duke-blue: #012169;
+  --duke-light-blue: #00539B;
+  --duke-gray: #5f6b7a;
+  --duke-border: #d9dee8;
+  --duke-bg: #f7f9fc;
+  --duke-soft: #eef3f9;
+}
+
+body {
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: #1f2937;
+  line-height: 1.65;
+  background-color: #ffffff;
+}
+
+#quarto-content {
+  max-width: 1100px;
+}
+
+h1, h2, h3, h4 {
+  color: var(--duke-blue);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+h1.title {
+  color: var(--duke-blue);
+  font-size: 2.2rem;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  border-bottom: 2px solid var(--duke-border);
+  padding-bottom: 0.3rem;
+  margin-top: 2rem;
+}
+
+h2 {
+  margin-top: 1.6rem;
+  color: var(--duke-light-blue);
+}
+
+p, li {
+  font-size: 1.02rem;
+}
+
+.navbar {
+  background-color: var(--duke-blue) !important;
+}
+
+.navbar-title,
+.navbar .nav-link,
+.navbar .menu-text {
+  color: white !important;
+  font-weight: 600;
+}
+
+.sidebar nav[role="doc-toc"] {
+  background: var(--duke-bg);
+  border: 1px solid var(--duke-border);
+  border-radius: 10px;
+  padding: 0.9rem;
+}
+
+blockquote {
+  border-left: 4px solid var(--duke-light-blue);
+  background: var(--duke-soft);
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  color: #243447;
+}
+
+table {
+  border-collapse: collapse !important;
+  width: 100%;
+  font-size: 0.95rem;
+}
+
+table thead th {
+  background-color: var(--duke-blue) !important;
+  color: white !important;
+  border: 1px solid var(--duke-blue) !important;
+}
+
+table td, table th {
+  border: 1px solid var(--duke-border) !important;
+  padding: 0.55rem 0.7rem !important;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f8fbff;
+}
+
+img {
+  border: 1px solid var(--duke-border);
+  border-radius: 10px;
+  padding: 6px;
+  background: white;
+}
+
+a {
+  color: var(--duke-light-blue);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.quarto-title-meta {
+  color: var(--duke-gray);
+}
+
+.cell-output {
+  margin-top: 0.5rem;
+}

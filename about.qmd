@@ -1,5 +1,5 @@
 ---
-title: "About"
+title: "Notes"
 ---
 
-About this site
+This page contains supplementary notes for the breakout strategy project.

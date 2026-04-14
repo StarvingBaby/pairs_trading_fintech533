@@ -2,15 +2,134 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "pairs_trading",
+    "title": "Breakout Trading Strategy Backtest",
     "section": "",
-    "text": "Good morning~\n\n\n\nMy Image\n\n\nThis is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+    "text": "Course: FINTECH 533\nTopic: Breakout Trading Strategy\nAsset: NVDA\nData Source: IBKR via ShinyBroker"
+  },
+  {
+    "objectID": "index.html#equity-curve",
+    "href": "index.html#equity-curve",
+    "title": "Breakout Trading Strategy Backtest",
+    "section": "Equity Curve",
+    "text": "Equity Curve\nIn-sample and out-of-sample cumulative P&L shown side by side."
+  },
+  {
+    "objectID": "index.html#trade-outcome-analysis",
+    "href": "index.html#trade-outcome-analysis",
+    "title": "Breakout Trading Strategy Backtest",
+    "section": "Trade Outcome Analysis",
+    "text": "Trade Outcome Analysis\nEach trade falls into one of three buckets:\n\nSuccessful: closed with a profit\nTimed Out: hit the 10-bar limit, closed at market regardless of P&L\nStop Loss: exited when the 5% stop was triggered"
+  },
+  {
+    "objectID": "index.html#metric-notes",
+    "href": "index.html#metric-notes",
+    "title": "Breakout Trading Strategy Backtest",
+    "section": "Metric Notes",
+    "text": "Metric Notes\n\nAverage Return per Trade - mean return across all completed trades\nAnnualized Sharpe Ratio - annualized using sqrt(trades_per_year) estimated from the date range, not sqrt(252), since returns are per-trade with variable holding periods. Risk-free rate assumption: 3.75% annually (RISK_FREE_RATE = 0.0375)\nWin Rate - fraction of trades that closed with positive P&L\nProfit Factor - gross profit divided by gross loss; above 1.0 means winners outweigh losers in dollar terms\nMax Drawdown ($) - largest peak-to-trough drop in cumulative P&L\nTotal Trades - number of completed trades in each window"
+  },
+  {
+    "objectID": "index.html#code-availability",
+    "href": "index.html#code-availability",
+    "title": "Breakout Trading Strategy Backtest",
+    "section": "Code Availability",
+    "text": "Code Availability\nView full notebook/code walkthrough"
   },
   {
     "objectID": "about.html",
     "href": "about.html",
-    "title": "About",
+    "title": "Notes",
     "section": "",
-    "text": "About this site"
+    "text": "This page contains supplementary notes for the breakout strategy project."
+  },
+  {
+    "objectID": "breakout_strategy.html",
+    "href": "breakout_strategy.html",
+    "title": "Breakout Strategy Backtest (IBKR / ShinyBroker)",
+    "section": "",
+    "text": "Goal - pull historical data from IBKR via ShinyBroker - define a breakout rule - run a simple backtest - export: - trade blotter CSV - metrics summary CSV - equity curve image - trade outcome image\nimport os\nimport numpy as np\nimport pandas as pd\n\n# Optional display settings\npd.set_option(\"display.max_columns\", 50)\npd.set_option(\"display.width\", 140)\n\nimport matplotlib.pyplot as plt\n\nDUKE_BLUE = \"#012169\"\nDUKE_LIGHT_BLUE = \"#00539B\"\nDUKE_GRAY = \"#6b7280\"\n\nplt.rcParams[\"figure.facecolor\"] = \"white\"\nplt.rcParams[\"axes.facecolor\"] = \"white\"\nplt.rcParams[\"axes.edgecolor\"] = \"#cfd8e3\"\nplt.rcParams[\"axes.labelcolor\"] = \"#1f2937\"\nplt.rcParams[\"axes.titleweight\"] = \"bold\"\nplt.rcParams[\"axes.titlesize\"] = 14\nplt.rcParams[\"grid.color\"] = \"#d9dee8\"\nplt.rcParams[\"grid.linestyle\"] = \"--\"\nplt.rcParams[\"grid.alpha\"] = 0.6\nplt.rcParams[\"xtick.color\"] = \"#374151\"\nplt.rcParams[\"ytick.color\"] = \"#374151\"\nplt.rcParams[\"font.size\"] = 11"
+  },
+  {
+    "objectID": "breakout_strategy.html#parameters",
+    "href": "breakout_strategy.html#parameters",
+    "title": "Breakout Strategy Backtest (IBKR / ShinyBroker)",
+    "section": "1. Parameters",
+    "text": "1. Parameters\n\n# ----------------------------\n# Strategy parameters\n# ----------------------------\nSYMBOL = \"NVDA\"\nSEC_TYPE = \"STK\"\nEXCHANGE = \"SMART\"\nCURRENCY = \"USD\"\n\nDURATION_STR = \"3 Y\"\nBAR_SIZE = \"1 day\"\nWHAT_TO_SHOW = \"TRADES\"\nUSE_RTH = True\n\nLOOKBACK = 20              # breakout lookback window\nSTOP_LOSS_PCT = 0.05       # 5% stop loss\nTIMEOUT_DAYS = 10          # exit after max holding period\nPOSITION_SIZE = 100        # shares\nRISK_FREE_RATE = 0.0375    # annual rf for Sharpe\n\nOUTPUT_DIR = \"outputs\"\nos.makedirs(OUTPUT_DIR, exist_ok=True)"
+  },
+  {
+    "objectID": "breakout_strategy.html#b.-asset-screening-notes",
+    "href": "breakout_strategy.html#b.-asset-screening-notes",
+    "title": "Breakout Strategy Backtest (IBKR / ShinyBroker)",
+    "section": "1b. Asset Screening Notes",
+    "text": "1b. Asset Screening Notes\nBefore settling on NVDA, I checked the breakout signal frequency on a few other candidates: SPY, TSLA, and AMD. SPY barely breaks out since it moves slowly, TSLA had more signals but also a lot of whipsaws. NVDA had the cleanest combination of frequent breakout signals and actual follow-through during 2023–2024, so it was the obvious pick for a momentum-based rule."
+  },
+  {
+    "objectID": "breakout_strategy.html#ibkr-shinybroker-connection",
+    "href": "breakout_strategy.html#ibkr-shinybroker-connection",
+    "title": "Breakout Strategy Backtest (IBKR / ShinyBroker)",
+    "section": "2. IBKR / ShinyBroker Connection",
+    "text": "2. IBKR / ShinyBroker Connection\n\nimport shinybroker as sb\n\nHOST = \"127.0.0.1\"\nPORT = 7497          # paper trading TWS commonly 7497\nCLIENT_ID = 9999     # change if needed\n\ncontract = sb.Contract({\n    \"symbol\": SYMBOL,\n    \"secType\": SEC_TYPE,\n    \"exchange\": EXCHANGE,\n    \"currency\": CURRENCY,\n})\n\ncontract\n\n{'conId': 0, 'symbol': 'NVDA', 'secType': 'STK', 'lastTradeDateOrContractMonth': '', 'lastTradeDate': '', 'strike': 0.0, 'right': '', 'multiplier': '', 'exchange': 'SMART', 'primaryExchange': '', 'currency': 'USD', 'localSymbol': '', 'tradingClass': '', 'includeExpired': False, 'secIdType': '', 'secId': '', 'description': '', 'issuerId': '', 'comboLegsDescrip': '', 'comboLegs': [], 'deltaNeutralContract': None}"
+  },
+  {
+    "objectID": "breakout_strategy.html#pull-historical-data",
+    "href": "breakout_strategy.html#pull-historical-data",
+    "title": "Breakout Strategy Backtest (IBKR / ShinyBroker)",
+    "section": "3. Pull Historical Data",
+    "text": "3. Pull Historical Data\n\nhist = sb.fetch_historical_data(\n    contract=contract,\n    durationStr=DURATION_STR,\n    barSizeSetting=BAR_SIZE,\n    whatToShow=WHAT_TO_SHOW,\n    useRTH=USE_RTH,\n    host=HOST,\n    port=PORT,\n    client_id=CLIENT_ID,\n    timeout=60,\n)\n\n# ShinyBroker usually returns a dict with key 'hst_dta'\ntype(hist), hist.keys()\n\ndf = hist[\"hst_dta\"].copy()\ndf.head()\n\n# Normalize columns\ndf = df.copy()\ndf[\"timestamp\"] = pd.to_datetime(df[\"timestamp\"])\ndf = df.sort_values(\"timestamp\").reset_index(drop=True)\n\n# Keep standard columns\ncols = [\"timestamp\", \"open\", \"high\", \"low\", \"close\", \"volume\"]\ndf = df[cols].copy()\n\ndf.tail(), df.shape\n\n(     timestamp    open    high     low   close     volume\n 746 2026-04-08  184.47  185.26  180.30  182.08   97673076\n 747 2026-04-09  181.84  184.08  180.62  183.91   78044536\n 748 2026-04-10  184.31  190.00  184.30  188.63  112710943\n 749 2026-04-13  186.03  189.66  185.74  189.31   88831764\n 750 2026-04-14  190.92  194.99  190.77  194.78   75847622,\n (751, 6))"
+  },
+  {
+    "objectID": "breakout_strategy.html#breakout-detection-function",
+    "href": "breakout_strategy.html#breakout-detection-function",
+    "title": "Breakout Strategy Backtest (IBKR / ShinyBroker)",
+    "section": "4. Breakout Detection Function",
+    "text": "4. Breakout Detection Function\nA breakout occurs when today’s closing price exceeds the highest high recorded over the previous LOOKBACK bars (not including today). The shift(1) ensures we never use today’s data in the lookback, so the signal is only generated at the close — no lookahead.\n\ndef detect_breakouts(price_df: pd.DataFrame, lookback: int) -&gt; pd.DataFrame:\n    \"\"\"\n    Adds two columns to price_df:\n      rolling_high : highest high over the previous `lookback` bars (shift(1) avoids lookahead)\n      breakout     : True when today's close exceeds that rolling high\n\n    Parameters\n    ----------\n    price_df : DataFrame with columns [timestamp, open, high, low, close, volume]\n    lookback : number of past bars to use for the high (LOOKBACK = 20)\n    \"\"\"\n    out = price_df.copy()\n\n    # shift(1) so we look at the previous `lookback` bars, not the current one\n    out[\"rolling_high\"] = out[\"high\"].shift(1).rolling(lookback).max()\n\n    # signal fires when today's close beats that recent high\n    out[\"breakout\"] = out[\"close\"] &gt; out[\"rolling_high\"]\n\n    return out\n\n\ndf_sig = detect_breakouts(df, LOOKBACK)\ndf_sig[[\"timestamp\", \"close\", \"rolling_high\", \"breakout\"]].tail(10)\n\n\n\n\n\n\n\n\ntimestamp\nclose\nrolling_high\nbreakout\n\n\n\n\n741\n2026-03-31\n174.40\n188.88\nFalse\n\n\n742\n2026-04-01\n175.75\n188.88\nFalse\n\n\n743\n2026-04-02\n177.39\n188.88\nFalse\n\n\n744\n2026-04-06\n177.64\n188.88\nFalse\n\n\n745\n2026-04-07\n178.10\n188.88\nFalse\n\n\n746\n2026-04-08\n182.08\n188.88\nFalse\n\n\n747\n2026-04-09\n183.91\n188.88\nFalse\n\n\n748\n2026-04-10\n188.63\n188.88\nFalse\n\n\n749\n2026-04-13\n189.31\n190.00\nFalse\n\n\n750\n2026-04-14\n194.78\n190.00\nTrue"
+  },
+  {
+    "objectID": "breakout_strategy.html#walk-forward-split",
+    "href": "breakout_strategy.html#walk-forward-split",
+    "title": "Breakout Strategy Backtest (IBKR / ShinyBroker)",
+    "section": "5. Walk-Forward Split",
+    "text": "5. Walk-Forward Split\nThe data is split into two non-overlapping windows: - In-sample (train): first ~2 years — used to confirm the parameters make sense - Out-of-sample (test): final ~1 year — held out to check whether the signal holds on unseen data\nBoth windows use the exact same parameters with no re-fitting between them.\n\n# ── walk-forward split ────────────────────────────────────────────────────\n# Use the last 252 trading days as out-of-sample; everything before is in-sample\nOOS_BARS = 252   # ~1 trading year\n\nsplit_idx = len(df_sig) - OOS_BARS\ndf_train = df_sig.iloc[:split_idx].reset_index(drop=True)\ndf_test  = df_sig.iloc[split_idx:].reset_index(drop=True)\n\nprint(f\"In-sample  : {df_train['timestamp'].iloc[0].date()} → {df_train['timestamp'].iloc[-1].date()}  ({len(df_train)} bars)\")\nprint(f\"Out-of-sample: {df_test['timestamp'].iloc[0].date()} → {df_test['timestamp'].iloc[-1].date()}  ({len(df_test)} bars)\")\n\nIn-sample  : 2023-04-17 → 2025-04-10  (499 bars)\nOut-of-sample: 2025-04-11 → 2026-04-14  (252 bars)"
+  },
+  {
+    "objectID": "breakout_strategy.html#backtest-logic",
+    "href": "breakout_strategy.html#backtest-logic",
+    "title": "Breakout Strategy Backtest (IBKR / ShinyBroker)",
+    "section": "6. Backtest Logic",
+    "text": "6. Backtest Logic\n\ndef backtest_breakout(\n    price_df: pd.DataFrame,\n    stop_loss_pct: float,\n    timeout_days: int,\n    position_size: int,\n) -&gt; pd.DataFrame:\n    \"\"\"\n    Simple long-only breakout backtest.\n\n    Entry  : close of the bar where breakout == True\n    Exit   : whichever comes first —\n             (a) daily low touches stop price  → exit at stop (Stop Loss)\n             (b) timeout_days bars elapse      → exit at close\n                 profitable close → Successful, otherwise → Timed Out\n    Only one open trade at a time; next signal is skipped until current trade closes.\n    \"\"\"\n    trades = []\n    i = 0\n    n = len(price_df)\n\n    while i &lt; n:\n        row = price_df.iloc[i]\n\n        if bool(row[\"breakout\"]) and not pd.isna(row[\"rolling_high\"]):\n            if i + timeout_days &gt;= n:\n                break\n\n            entry_ts    = row[\"timestamp\"]\n            entry_price = float(row[\"close\"])\n            stop_price  = entry_price * (1 - stop_loss_pct)\n\n            exit_ts = exit_price = outcome = None\n            max_j = i + timeout_days\n\n            # check each future bar for stop-loss\n            for j in range(i + 1, max_j + 1):\n                nxt = price_df.iloc[j]\n                if float(nxt[\"low\"]) &lt;= stop_price:\n                    exit_ts    = nxt[\"timestamp\"]\n                    exit_price = stop_price\n                    outcome    = \"Stop Loss\"\n                    break\n\n            if exit_ts is None:   # no stop hit → timeout exit\n                last_row   = price_df.iloc[max_j]\n                exit_ts    = last_row[\"timestamp\"]\n                exit_price = float(last_row[\"close\"])\n                outcome    = \"Successful\" if exit_price &gt; entry_price else \"Timed Out\"\n\n            pnl = (exit_price - entry_price) * position_size\n            ret = (exit_price - entry_price) / entry_price\n\n            trades.append({\n                \"entry_timestamp\"   : entry_ts,\n                \"exit_timestamp\"    : exit_ts,\n                \"entry_price\"       : round(entry_price, 4),\n                \"exit_price\"        : round(exit_price, 4),\n                \"size\"              : position_size,\n                \"direction\"         : \"Long\",\n                \"stop_price\"        : round(stop_price, 4),\n                \"holding_bars\"      : int(max_j - i),\n                \"calendar_days_held\": int((pd.to_datetime(exit_ts) - pd.to_datetime(entry_ts)).days),\n                \"pnl\"               : round(pnl, 4),\n                \"return\"            : round(ret, 6),\n                \"outcome\"           : outcome,\n            })\n            i = max_j + 1\n        else:\n            i += 1\n\n    return pd.DataFrame(trades)\n\n\n# run on both windows\ntrades_is  = backtest_breakout(df_train, STOP_LOSS_PCT, TIMEOUT_DAYS, POSITION_SIZE)\ntrades_oos = backtest_breakout(df_test,  STOP_LOSS_PCT, TIMEOUT_DAYS, POSITION_SIZE)\ntrades     = pd.concat([trades_is, trades_oos], ignore_index=True)  # full blotter\n\nprint(f\"In-sample trades : {len(trades_is)}\")\nprint(f\"Out-of-sample trades: {len(trades_oos)}\")\n\nIn-sample trades : 16\nOut-of-sample trades: 9\n\n\n\n# quick sanity check\nprint(f\"In-sample: {len(trades_is)} trades, Out-of-sample: {len(trades_oos)} trades\")\ntrades.head(3)\n\nIn-sample: 16 trades, Out-of-sample: 9 trades\n\n\n\n\n\n\n\n\n\nentry_timestamp\nexit_timestamp\nentry_price\nexit_price\nsize\ndirection\nstop_price\nholding_bars\ncalendar_days_held\npnl\nreturn\noutcome\n\n\n\n\n0\n2023-05-17\n2023-06-01\n30.18\n39.77\n100\nLong\n28.671\n10\n15\n959.0\n0.31776\nSuccessful\n\n\n1\n2023-06-14\n2023-06-26\n43.00\n40.85\n100\nLong\n40.850\n10\n12\n-215.0\n-0.05000\nStop Loss\n\n\n2\n2023-07-13\n2023-07-27\n45.98\n45.90\n100\nLong\n43.681\n10\n14\n-8.0\n-0.00174\nTimed Out\n\n\n\n\n\n\n\n\ntrades.tail(3)\n\n\n\n\n\n\n\n\nentry_timestamp\nexit_timestamp\nentry_price\nexit_price\nsize\ndirection\nstop_price\nholding_bars\ncalendar_days_held\npnl\nreturn\noutcome\n\n\n\n\n22\n2025-10-28\n2025-11-06\n201.03\n190.9785\n100\nLong\n190.9785\n10\n9\n-1005.15\n-0.050000\nStop Loss\n\n\n23\n2025-12-23\n2026-01-08\n189.21\n185.0400\n100\nLong\n179.7495\n10\n16\n-417.00\n-0.022039\nTimed Out\n\n\n24\n2026-02-25\n2026-02-26\n195.56\n185.7820\n100\nLong\n185.7820\n10\n1\n-977.80\n-0.050000\nStop Loss"
+  },
+  {
+    "objectID": "breakout_strategy.html#trade-outcome-summary",
+    "href": "breakout_strategy.html#trade-outcome-summary",
+    "title": "Breakout Strategy Backtest (IBKR / ShinyBroker)",
+    "section": "7. Trade Outcome Summary",
+    "text": "7. Trade Outcome Summary\n\nif not trades.empty:\n    print(trades[\"outcome\"].value_counts())\nelse:\n    print(\"No trades found.\")\n\noutcome\nSuccessful    12\nStop Loss      9\nTimed Out      4\nName: count, dtype: int64"
+  },
+  {
+    "objectID": "breakout_strategy.html#performance-metrics",
+    "href": "breakout_strategy.html#performance-metrics",
+    "title": "Breakout Strategy Backtest (IBKR / ShinyBroker)",
+    "section": "8. Performance Metrics",
+    "text": "8. Performance Metrics\n\ndef compute_metrics(trades_df: pd.DataFrame, risk_free_rate: float, label: str = \"\") -&gt; pd.DataFrame:\n    \"\"\"\n    Compute summary performance metrics for a set of trades.\n\n    Sharpe is annualized using sqrt(trades_per_year) rather than sqrt(252),\n    because returns are per-trade (variable holding period), not daily.\n    trades_per_year is estimated from the date range of the trades.\n    \"\"\"\n    if trades_df.empty:\n        return pd.DataFrame([{\"metric\": \"No trades\", \"value\": np.nan}])\n\n    avg_return   = trades_df[\"return\"].mean()\n    win_rate     = (trades_df[\"pnl\"] &gt; 0).mean()\n    gross_profit = trades_df.loc[trades_df[\"pnl\"] &gt; 0, \"pnl\"].sum()\n    gross_loss   = abs(trades_df.loc[trades_df[\"pnl\"] &lt; 0, \"pnl\"].sum())\n    profit_factor = gross_profit / gross_loss if gross_loss &gt; 0 else np.nan\n\n    # annualize Sharpe by trades-per-year, not by 252\n    # (returns are per-trade with variable holding periods, not daily)\n    r = trades_df[\"return\"].dropna()\n    date_range_years = (\n        pd.to_datetime(trades_df[\"exit_timestamp\"].max()) -\n        pd.to_datetime(trades_df[\"entry_timestamp\"].min())\n    ).days / 365.25\n    trades_per_year = len(r) / date_range_years if date_range_years &gt; 0 else 252\n\n    if len(r) &gt;= 2 and r.std(ddof=1) &gt; 0:\n        # per-trade rf: annualized rf divided by trades per year\n        rf_per_trade = risk_free_rate / trades_per_year\n        sharpe = ((r.mean() - rf_per_trade) / r.std(ddof=1)) * np.sqrt(trades_per_year)\n    else:\n        sharpe = np.nan\n\n    equity      = trades_df[\"pnl\"].cumsum()\n    running_max = equity.cummax()\n    drawdown    = equity - running_max\n    max_drawdown = drawdown.min() if not drawdown.empty else np.nan\n\n    metrics = pd.DataFrame([\n        {\"metric\": \"Average Return per Trade\", \"value\": round(avg_return, 6)},\n        {\"metric\": \"Annualized Sharpe Ratio\",  \"value\": round(sharpe, 6) if pd.notna(sharpe) else np.nan},\n        {\"metric\": \"Win Rate\",                 \"value\": round(win_rate, 6)},\n        {\"metric\": \"Profit Factor\",             \"value\": round(profit_factor, 6) if pd.notna(profit_factor) else np.nan},\n        {\"metric\": \"Max Drawdown ($)\",          \"value\": round(max_drawdown, 4) if pd.notna(max_drawdown) else np.nan},\n        {\"metric\": \"Total Trades\",               \"value\": int(len(trades_df))},\n    ])\n    if label:\n        metrics.insert(0, \"window\", label)\n    return metrics\n\n\nmetrics_is  = compute_metrics(trades_is,  RISK_FREE_RATE, label=\"in-sample\")\nmetrics_oos = compute_metrics(trades_oos, RISK_FREE_RATE, label=\"out-of-sample\")\nmetrics     = pd.concat([metrics_is, metrics_oos], ignore_index=True)\nprint(metrics.to_string(index=False))\n\n       window                   metric        value\n    in-sample Average Return per Trade     0.038031\n    in-sample  Annualized Sharpe Ratio     0.967652\n    in-sample                 Win Rate     0.437500\n    in-sample            Profit Factor     1.802024\n    in-sample         Max Drawdown ($) -1475.200000\n    in-sample             Total Trades    16.000000\nout-of-sample Average Return per Trade     0.021541\nout-of-sample  Annualized Sharpe Ratio     0.930569\nout-of-sample                 Win Rate     0.555556\nout-of-sample            Profit Factor     1.617702\nout-of-sample         Max Drawdown ($) -3054.950000\nout-of-sample             Total Trades     9.000000"
+  },
+  {
+    "objectID": "breakout_strategy.html#equity-curve",
+    "href": "breakout_strategy.html#equity-curve",
+    "title": "Breakout Strategy Backtest (IBKR / ShinyBroker)",
+    "section": "9. Equity Curve",
+    "text": "9. Equity Curve\n\nfig, axes = plt.subplots(1, 2, figsize=(14, 5), sharey=False)\n\nfor ax, trades_w, label in [\n    (axes[0], trades_is,  f\"In-Sample ({df_train['timestamp'].iloc[0].year}–{df_train['timestamp'].iloc[-1].year})\"),\n    (axes[1], trades_oos, f\"Out-of-Sample ({df_test['timestamp'].iloc[0].year}–{df_test['timestamp'].iloc[-1].year})\"),\n]:\n    if not trades_w.empty:\n        equity = trades_w[\"pnl\"].cumsum()\n        ax.plot(pd.to_datetime(trades_w[\"exit_timestamp\"]), equity, color=DUKE_BLUE, linewidth=2)\n    ax.set_title(label)\n    ax.set_xlabel(\"Exit Date\")\n    ax.set_ylabel(\"Cumulative PnL ($)\")\n    ax.grid(True)\n\nplt.suptitle(f\"Equity Curve — {SYMBOL}\", fontweight=\"bold\")\nplt.tight_layout()\nplt.show()"
+  },
+  {
+    "objectID": "breakout_strategy.html#trade-outcome-chart",
+    "href": "breakout_strategy.html#trade-outcome-chart",
+    "title": "Breakout Strategy Backtest (IBKR / ShinyBroker)",
+    "section": "10. Trade Outcome Chart",
+    "text": "10. Trade Outcome Chart\n\nplt.figure(figsize=(8, 5))\nif not trades.empty:\n    trades[\"outcome\"].value_counts().plot(kind=\"bar\")\nplt.title(\"Trade Outcomes\")\nplt.xlabel(\"Outcome\")\nplt.ylabel(\"Count\")\nplt.tight_layout()\nplt.show()"
+  },
+  {
+    "objectID": "breakout_strategy.html#export-outputs-for-quarto-website",
+    "href": "breakout_strategy.html#export-outputs-for-quarto-website",
+    "title": "Breakout Strategy Backtest (IBKR / ShinyBroker)",
+    "section": "11. Export Outputs for Quarto Website",
+    "text": "11. Export Outputs for Quarto Website\n\n# export blotter (full, in-sample, out-of-sample)\ntrades.to_csv(f\"{OUTPUT_DIR}/trade_blotter.csv\", index=False)\ntrades_is.to_csv(f\"{OUTPUT_DIR}/trade_blotter_is.csv\", index=False)\ntrades_oos.to_csv(f\"{OUTPUT_DIR}/trade_blotter_oos.csv\", index=False)\nmetrics.to_csv(f\"{OUTPUT_DIR}/metrics_summary.csv\", index=False)\n\n# equity curve — side-by-side in/out-of-sample\nfig, axes = plt.subplots(1, 2, figsize=(14, 5), sharey=False)\nfor ax, trades_w, label in [\n    (axes[0], trades_is,  f\"In-Sample\"),\n    (axes[1], trades_oos, f\"Out-of-Sample\"),\n]:\n    if not trades_w.empty:\n        equity = trades_w[\"pnl\"].cumsum()\n        ax.plot(pd.to_datetime(trades_w[\"exit_timestamp\"]), equity, color=DUKE_BLUE, linewidth=2)\n    ax.set_title(label)\n    ax.set_xlabel(\"Exit Date\")\n    ax.set_ylabel(\"Cumulative PnL ($)\")\n    ax.grid(True)\nplt.suptitle(f\"Equity Curve — {SYMBOL}\", fontweight=\"bold\")\nplt.tight_layout()\nplt.savefig(f\"{OUTPUT_DIR}/equity_curve.png\")\nplt.close()\n\n# trade outcome chart\nfig, axes = plt.subplots(1, 2, figsize=(12, 5))\nfor ax, trades_w, label in [\n    (axes[0], trades_is,  \"In-Sample\"),\n    (axes[1], trades_oos, \"Out-of-Sample\"),\n]:\n    if not trades_w.empty:\n        trades_w[\"outcome\"].value_counts().plot(kind=\"bar\", ax=ax, color=DUKE_LIGHT_BLUE)\n    ax.set_title(label)\n    ax.set_xlabel(\"Outcome\")\n    ax.set_ylabel(\"Count\")\n    ax.grid(axis=\"y\")\nplt.suptitle(\"Trade Outcomes\", fontweight=\"bold\")\nplt.tight_layout()\nplt.savefig(f\"{OUTPUT_DIR}/trade_outcomes.png\")\nplt.close()\n\nprint(\"Saved:\")\nfor f in [\"trade_blotter.csv\", \"trade_blotter_is.csv\", \"trade_blotter_oos.csv\",\n          \"metrics_summary.csv\", \"equity_curve.png\", \"trade_outcomes.png\"]:\n    print(f\"  {OUTPUT_DIR}/{f}\")\n\nSaved:\n  outputs/trade_blotter.csv\n  outputs/trade_blotter_is.csv\n  outputs/trade_blotter_oos.csv\n  outputs/metrics_summary.csv\n  outputs/equity_curve.png\n  outputs/trade_outcomes.png"
   }
 ]

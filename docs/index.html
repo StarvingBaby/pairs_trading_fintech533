@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>pairs_trading</title>
+<title>Breakout Trading Strategy Backtest – Breakout Trading Strategy</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -26,7 +26,7 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -70,6 +70,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 <link rel="stylesheet" href="styles.css">
@@ -83,7 +86,7 @@ ul.task-list li input[type="checkbox"] {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">pairs_trading</span>
+    <span class="navbar-title">Breakout Trading Strategy</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -98,7 +101,7 @@ ul.task-list li input[type="checkbox"] {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./about.html"> 
-<span class="menu-text">About</span></a>
+<span class="menu-text">Notes</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -111,15 +114,41 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#strategy-logic" id="toc-strategy-logic" class="nav-link" data-scroll-target="#strategy-logic">Strategy Logic</a></li>
+  <li><a href="#asset-selection" id="toc-asset-selection" class="nav-link" data-scroll-target="#asset-selection">Asset Selection</a></li>
+  <li><a href="#breakout-definition" id="toc-breakout-definition" class="nav-link" data-scroll-target="#breakout-definition">Breakout Definition</a></li>
+  <li><a href="#data-and-assumptions" id="toc-data-and-assumptions" class="nav-link" data-scroll-target="#data-and-assumptions">Data and Assumptions</a></li>
+  <li><a href="#walk-forward-design" id="toc-walk-forward-design" class="nav-link" data-scroll-target="#walk-forward-design">Walk-Forward Design</a></li>
+  <li><a href="#backtest-results" id="toc-backtest-results" class="nav-link" data-scroll-target="#backtest-results">Backtest Results</a>
+  <ul class="collapse">
+  <li><a href="#equity-curve" id="toc-equity-curve" class="nav-link" data-scroll-target="#equity-curve">Equity Curve</a></li>
+  <li><a href="#trade-outcome-analysis" id="toc-trade-outcome-analysis" class="nav-link" data-scroll-target="#trade-outcome-analysis">Trade Outcome Analysis</a></li>
+  </ul></li>
+  <li><a href="#performance-metrics" id="toc-performance-metrics" class="nav-link" data-scroll-target="#performance-metrics">Performance Metrics</a>
+  <ul class="collapse">
+  <li><a href="#metric-notes" id="toc-metric-notes" class="nav-link" data-scroll-target="#metric-notes">Metric Notes</a></li>
+  </ul></li>
+  <li><a href="#trade-blotter" id="toc-trade-blotter" class="nav-link" data-scroll-target="#trade-blotter">Trade Blotter</a></li>
+  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a></li>
+  <li><a href="#reproducibility" id="toc-reproducibility" class="nav-link" data-scroll-target="#reproducibility">Reproducibility</a>
+  <ul class="collapse">
+  <li><a href="#code-availability" id="toc-code-availability" class="nav-link" data-scroll-target="#code-availability">Code Availability</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">pairs_trading</h1>
+<h1 class="title">Breakout Trading Strategy Backtest</h1>
 </div>
 
 
@@ -136,17 +165,620 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Good morning~</p>
-<div class="quarto-figure quarto-figure-left">
-<figure class="figure">
-<p><img src="images/me.jpg" class="img-fluid figure-img" style="width:20.0%"></p>
-<figcaption>My Image</figcaption>
-</figure>
+<p><strong>Course:</strong> FINTECH 533</p>
+<p><strong>Topic:</strong> Breakout Trading Strategy</p>
+<p><strong>Asset:</strong> NVDA</p>
+<p><strong>Data Source:</strong> IBKR via ShinyBroker</p>
+<section id="overview" class="level1">
+<h1>Overview</h1>
+<p>This project backtests a simple breakout trading strategy on NVDA using daily price data pulled from IBKR via ShinyBroker. The idea is pretty straightforward: enter long when price clears a recent high, and exit either at a stop-loss or after a fixed holding period.</p>
+<p>I kept the implementation simple on purpose - no fancy filters, just a clean entry rule with defined exits so the results are easy to trace and explain.</p>
+</section>
+<section id="strategy-logic" class="level1">
+<h1>Strategy Logic</h1>
+<p>The strategy goes long when the closing price exceeds the highest high of the past 20 trading days - the idea being that a new 20-day high suggests momentum is picking up and price might continue in the same direction. Once in a trade, there are two ways to exit: a 5% stop-loss below the entry price, or a forced close after 10 trading bars if the stop hasn’t been hit. Only one position is held at a time, so new signals are skipped until the current trade closes.</p>
+</section>
+<section id="asset-selection" class="level1">
+<h1>Asset Selection</h1>
+<p>I chose <strong>NVDA (NVIDIA Corporation)</strong> for this backtest.</p>
+<p>Before picking NVDA I checked a few other candidates - SPY, TSLA, and AMD. SPY barely generates signals because it moves slowly; TSLA had plenty of breakouts but a lot of them reversed quickly. NVDA had the cleanest combination of frequent signals and actual follow-through, especially during 2023-2024. Breakout logic tends to work better on stocks that actually trend, so it seemed like the right fit.</p>
+</section>
+<section id="breakout-definition" class="level1">
+<h1>Breakout Definition</h1>
+<p>A breakout is defined as:</p>
+<blockquote class="blockquote">
+<p>today’s closing price is greater than the highest high of the previous 20 trading days</p>
+</blockquote>
+<p>The full set of parameters:</p>
+<ul>
+<li><strong>Asset:</strong> NVDA</li>
+<li><strong>Lookback window:</strong> 20 trading days</li>
+<li><strong>Entry rule:</strong> Close &gt; previous 20-day high</li>
+<li><strong>Direction:</strong> Long only</li>
+<li><strong>Stop-loss:</strong> 5% below entry price</li>
+<li><strong>Timeout exit:</strong> 10 trading bars (not calendar days)</li>
+<li><strong>Position size:</strong> 100 shares per trade</li>
+</ul>
+</section>
+<section id="data-and-assumptions" class="level1">
+<h1>Data and Assumptions</h1>
+<p>Daily bar data was downloaded from IBKR through ShinyBroker, covering roughly three years of history.</p>
+<p>A few simplifying assumptions were made to keep things clean:</p>
+<ul>
+<li>no commissions</li>
+<li>no slippage</li>
+<li>trades execute at the observed closing price</li>
+<li>daily bars only</li>
+<li>only one open position at a time</li>
+</ul>
+<p>If the daily low dips below the stop-loss level on a given bar, the trade is assumed to exit at the stop price that day.</p>
+</section>
+<section id="walk-forward-design" class="level1">
+<h1>Walk-Forward Design</h1>
+<p>To reduce overfitting risk, the backtest is split into two non-overlapping windows:</p>
+<ul>
+<li><strong>In-sample (~2 years):</strong> used to confirm the parameters make sense</li>
+<li><strong>Out-of-sample (~1 year):</strong> held out entirely, tested with the same parameters unchanged</li>
+</ul>
+<p>The equity curve and metrics below are reported separately for each window. The out-of-sample results are the ones that actually matter.</p>
+</section>
+<section id="backtest-results" class="level1">
+<h1>Backtest Results</h1>
+<section id="equity-curve" class="level2">
+<h2 class="anchored" data-anchor-id="equity-curve">Equity Curve</h2>
+<p>In-sample and out-of-sample cumulative P&amp;L shown side by side.</p>
+<p><img src="outputs/equity_curve.png" class="img-fluid"></p>
+</section>
+<section id="trade-outcome-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="trade-outcome-analysis">Trade Outcome Analysis</h2>
+<p>Each trade falls into one of three buckets:</p>
+<ul>
+<li><strong>Successful:</strong> closed with a profit</li>
+<li><strong>Timed Out:</strong> hit the 10-bar limit, closed at market regardless of P&amp;L</li>
+<li><strong>Stop Loss:</strong> exited when the 5% stop was triggered</li>
+</ul>
+<p><img src="outputs/trade_outcomes.png" class="img-fluid"></p>
+</section>
+</section>
+<section id="performance-metrics" class="level1">
+<h1>Performance Metrics</h1>
+<div id="987aa767" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">window</th>
+<th data-quarto-table-cell-role="th">metric</th>
+<th data-quarto-table-cell-role="th">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>in-sample</td>
+<td>Average Return per Trade</td>
+<td>0.038031</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>in-sample</td>
+<td>Annualized Sharpe Ratio</td>
+<td>0.967652</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>in-sample</td>
+<td>Win Rate</td>
+<td>0.437500</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>in-sample</td>
+<td>Profit Factor</td>
+<td>1.802024</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>in-sample</td>
+<td>Max Drawdown ($)</td>
+<td>-1475.200000</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5</th>
+<td>in-sample</td>
+<td>Total Trades</td>
+<td>16.000000</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">6</th>
+<td>out-of-sample</td>
+<td>Average Return per Trade</td>
+<td>0.021541</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">7</th>
+<td>out-of-sample</td>
+<td>Annualized Sharpe Ratio</td>
+<td>0.930569</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">8</th>
+<td>out-of-sample</td>
+<td>Win Rate</td>
+<td>0.555556</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">9</th>
+<td>out-of-sample</td>
+<td>Profit Factor</td>
+<td>1.617702</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">10</th>
+<td>out-of-sample</td>
+<td>Max Drawdown ($)</td>
+<td>-3054.950000</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">11</th>
+<td>out-of-sample</td>
+<td>Total Trades</td>
+<td>9.000000</td>
+</tr>
+</tbody>
+</table>
+
 </div>
-<p>This is a Quarto website.</p>
-<p>To learn more about Quarto websites visit <a href="https://quarto.org/docs/websites" class="uri">https://quarto.org/docs/websites</a>.</p>
+</div>
+</div>
+<section id="metric-notes" class="level2">
+<h2 class="anchored" data-anchor-id="metric-notes">Metric Notes</h2>
+<ul>
+<li><strong>Average Return per Trade</strong> - mean return across all completed trades</li>
+<li><strong>Annualized Sharpe Ratio</strong> - annualized using <code>sqrt(trades_per_year)</code> estimated from the date range, not <code>sqrt(252)</code>, since returns are per-trade with variable holding periods. Risk-free rate assumption: <strong>3.75% annually</strong> (RISK_FREE_RATE = 0.0375)</li>
+<li><strong>Win Rate</strong> - fraction of trades that closed with positive P&amp;L</li>
+<li><strong>Profit Factor</strong> - gross profit divided by gross loss; above 1.0 means winners outweigh losers in dollar terms</li>
+<li><strong>Max Drawdown ($)</strong> - largest peak-to-trough drop in cumulative P&amp;L</li>
+<li><strong>Total Trades</strong> - number of completed trades in each window</li>
+</ul>
+</section>
+</section>
+<section id="trade-blotter" class="level1">
+<h1>Trade Blotter</h1>
+<p>Full trade log below. <code>holding_bars</code> is trading days held; <code>calendar_days_held</code> is calendar days between entry and exit.</p>
+<div id="c7d5a76b" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div>
 
 
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">entry_timestamp</th>
+<th data-quarto-table-cell-role="th">exit_timestamp</th>
+<th data-quarto-table-cell-role="th">entry_price</th>
+<th data-quarto-table-cell-role="th">exit_price</th>
+<th data-quarto-table-cell-role="th">size</th>
+<th data-quarto-table-cell-role="th">direction</th>
+<th data-quarto-table-cell-role="th">stop_price</th>
+<th data-quarto-table-cell-role="th">holding_bars</th>
+<th data-quarto-table-cell-role="th">calendar_days_held</th>
+<th data-quarto-table-cell-role="th">pnl</th>
+<th data-quarto-table-cell-role="th">return</th>
+<th data-quarto-table-cell-role="th">outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>2023-05-17</td>
+<td>2023-06-01</td>
+<td>30.18</td>
+<td>39.7700</td>
+<td>100</td>
+<td>Long</td>
+<td>28.6710</td>
+<td>10</td>
+<td>15</td>
+<td>959.00</td>
+<td>0.317760</td>
+<td>Successful</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>2023-06-14</td>
+<td>2023-06-26</td>
+<td>43.00</td>
+<td>40.8500</td>
+<td>100</td>
+<td>Long</td>
+<td>40.8500</td>
+<td>10</td>
+<td>12</td>
+<td>-215.00</td>
+<td>-0.050000</td>
+<td>Stop Loss</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>2023-07-13</td>
+<td>2023-07-27</td>
+<td>45.98</td>
+<td>45.9000</td>
+<td>100</td>
+<td>Long</td>
+<td>43.6810</td>
+<td>10</td>
+<td>14</td>
+<td>-8.00</td>
+<td>-0.001740</td>
+<td>Timed Out</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>2023-10-11</td>
+<td>2023-10-17</td>
+<td>46.81</td>
+<td>44.4695</td>
+<td>100</td>
+<td>Long</td>
+<td>44.4695</td>
+<td>10</td>
+<td>6</td>
+<td>-234.05</td>
+<td>-0.050000</td>
+<td>Stop Loss</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>2023-11-10</td>
+<td>2023-11-27</td>
+<td>48.34</td>
+<td>48.2400</td>
+<td>100</td>
+<td>Long</td>
+<td>45.9230</td>
+<td>10</td>
+<td>17</td>
+<td>-10.00</td>
+<td>-0.002069</td>
+<td>Timed Out</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5</th>
+<td>2024-01-08</td>
+<td>2024-01-23</td>
+<td>52.25</td>
+<td>59.8700</td>
+<td>100</td>
+<td>Long</td>
+<td>49.6375</td>
+<td>10</td>
+<td>15</td>
+<td>762.00</td>
+<td>0.145837</td>
+<td>Successful</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">6</th>
+<td>2024-01-24</td>
+<td>2024-02-07</td>
+<td>61.36</td>
+<td>70.1000</td>
+<td>100</td>
+<td>Long</td>
+<td>58.2920</td>
+<td>10</td>
+<td>14</td>
+<td>874.00</td>
+<td>0.142438</td>
+<td>Successful</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">7</th>
+<td>2024-02-09</td>
+<td>2024-02-20</td>
+<td>72.13</td>
+<td>68.5235</td>
+<td>100</td>
+<td>Long</td>
+<td>68.5235</td>
+<td>10</td>
+<td>11</td>
+<td>-360.65</td>
+<td>-0.050000</td>
+<td>Stop Loss</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">8</th>
+<td>2024-03-04</td>
+<td>2024-03-18</td>
+<td>85.24</td>
+<td>88.4600</td>
+<td>100</td>
+<td>Long</td>
+<td>80.9780</td>
+<td>10</td>
+<td>14</td>
+<td>322.00</td>
+<td>0.037776</td>
+<td>Successful</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">9</th>
+<td>2024-05-06</td>
+<td>2024-05-20</td>
+<td>92.14</td>
+<td>94.7800</td>
+<td>100</td>
+<td>Long</td>
+<td>87.5330</td>
+<td>10</td>
+<td>14</td>
+<td>264.00</td>
+<td>0.028652</td>
+<td>Successful</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">10</th>
+<td>2024-05-23</td>
+<td>2024-06-07</td>
+<td>103.80</td>
+<td>120.8900</td>
+<td>100</td>
+<td>Long</td>
+<td>98.6100</td>
+<td>10</td>
+<td>15</td>
+<td>1709.00</td>
+<td>0.164644</td>
+<td>Successful</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">11</th>
+<td>2024-06-13</td>
+<td>2024-06-24</td>
+<td>129.61</td>
+<td>123.1295</td>
+<td>100</td>
+<td>Long</td>
+<td>123.1295</td>
+<td>10</td>
+<td>11</td>
+<td>-648.05</td>
+<td>-0.050000</td>
+<td>Stop Loss</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">12</th>
+<td>2024-08-19</td>
+<td>2024-08-22</td>
+<td>130.00</td>
+<td>123.5000</td>
+<td>100</td>
+<td>Long</td>
+<td>123.5000</td>
+<td>10</td>
+<td>3</td>
+<td>-650.00</td>
+<td>-0.050000</td>
+<td>Stop Loss</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">13</th>
+<td>2024-10-07</td>
+<td>2024-10-21</td>
+<td>127.72</td>
+<td>143.7100</td>
+<td>100</td>
+<td>Long</td>
+<td>121.3340</td>
+<td>10</td>
+<td>14</td>
+<td>1599.00</td>
+<td>0.125196</td>
+<td>Successful</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">14</th>
+<td>2024-11-06</td>
+<td>2024-11-18</td>
+<td>145.61</td>
+<td>138.3295</td>
+<td>100</td>
+<td>Long</td>
+<td>138.3295</td>
+<td>10</td>
+<td>12</td>
+<td>-728.05</td>
+<td>-0.050000</td>
+<td>Stop Loss</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">15</th>
+<td>2025-01-06</td>
+<td>2025-01-07</td>
+<td>149.43</td>
+<td>141.9585</td>
+<td>100</td>
+<td>Long</td>
+<td>141.9585</td>
+<td>10</td>
+<td>1</td>
+<td>-747.15</td>
+<td>-0.050000</td>
+<td>Stop Loss</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">16</th>
+<td>2025-05-07</td>
+<td>2025-05-21</td>
+<td>117.06</td>
+<td>131.8000</td>
+<td>100</td>
+<td>Long</td>
+<td>111.2070</td>
+<td>10</td>
+<td>14</td>
+<td>1474.00</td>
+<td>0.125918</td>
+<td>Successful</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">17</th>
+<td>2025-05-29</td>
+<td>2025-06-12</td>
+<td>139.19</td>
+<td>145.0000</td>
+<td>100</td>
+<td>Long</td>
+<td>132.2305</td>
+<td>10</td>
+<td>14</td>
+<td>581.00</td>
+<td>0.041742</td>
+<td>Successful</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">18</th>
+<td>2025-06-24</td>
+<td>2025-07-09</td>
+<td>147.90</td>
+<td>162.8800</td>
+<td>100</td>
+<td>Long</td>
+<td>140.5050</td>
+<td>10</td>
+<td>15</td>
+<td>1498.00</td>
+<td>0.101285</td>
+<td>Successful</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">19</th>
+<td>2025-07-11</td>
+<td>2025-07-25</td>
+<td>164.92</td>
+<td>173.5000</td>
+<td>100</td>
+<td>Long</td>
+<td>156.6740</td>
+<td>10</td>
+<td>14</td>
+<td>858.00</td>
+<td>0.052025</td>
+<td>Successful</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">20</th>
+<td>2025-07-28</td>
+<td>2025-08-11</td>
+<td>176.75</td>
+<td>182.0600</td>
+<td>100</td>
+<td>Long</td>
+<td>167.9125</td>
+<td>10</td>
+<td>14</td>
+<td>531.00</td>
+<td>0.030042</td>
+<td>Successful</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">21</th>
+<td>2025-09-30</td>
+<td>2025-10-14</td>
+<td>186.58</td>
+<td>180.0300</td>
+<td>100</td>
+<td>Long</td>
+<td>177.2510</td>
+<td>10</td>
+<td>14</td>
+<td>-655.00</td>
+<td>-0.035106</td>
+<td>Timed Out</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">22</th>
+<td>2025-10-28</td>
+<td>2025-11-06</td>
+<td>201.03</td>
+<td>190.9785</td>
+<td>100</td>
+<td>Long</td>
+<td>190.9785</td>
+<td>10</td>
+<td>9</td>
+<td>-1005.15</td>
+<td>-0.050000</td>
+<td>Stop Loss</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">23</th>
+<td>2025-12-23</td>
+<td>2026-01-08</td>
+<td>189.21</td>
+<td>185.0400</td>
+<td>100</td>
+<td>Long</td>
+<td>179.7495</td>
+<td>10</td>
+<td>16</td>
+<td>-417.00</td>
+<td>-0.022039</td>
+<td>Timed Out</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">24</th>
+<td>2026-02-25</td>
+<td>2026-02-26</td>
+<td>195.56</td>
+<td>185.7820</td>
+<td>100</td>
+<td>Long</td>
+<td>185.7820</td>
+<td>10</td>
+<td>1</td>
+<td>-977.80</td>
+<td>-0.050000</td>
+<td>Stop Loss</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p><a href="outputs/trade_blotter.csv">Download Trade Blotter CSV</a></p>
+</section>
+<section id="discussion" class="level1">
+<h1>Discussion</h1>
+<p>NVDA had a strong trending run through most of the backtest period, which gave a momentum-based entry favorable conditions. The profit factor holding above 1.0 in both windows - despite a win rate under 50% in-sample - means the winning trades were large enough to cover the losers. That’s fairly typical for breakout strategies: you get stopped out often but occasionally catch a real move.</p>
+<p>The stop-loss is doing a lot of the risk management. Several trades got cut within a few days, which kept individual losses contained. The timeout exit is blunter - a few of those timed-out trades were nearly flat, and a longer holding window might have changed the outcome, though it’s hard to say without testing it.</p>
+<p>The out-of-sample window is the more honest read on whether the signal actually has edge. In-sample results on a trending stock during a bull run aren’t that surprising. Main things to keep in mind: no slippage or commissions modeled, single asset, no regime filter. The Sharpe around ~0.95 is reasonable but per-trade annualization can distort the number relative to a proper daily MTM series, so take it as directional.</p>
+</section>
+<section id="reproducibility" class="level1">
+<h1>Reproducibility</h1>
+<p>All output files are generated by the Jupyter notebook and saved to the <code>outputs/</code> folder:</p>
+<ul>
+<li><code>outputs/trade_blotter.csv</code></li>
+<li><code>outputs/metrics_summary.csv</code></li>
+<li><code>outputs/equity_curve.png</code></li>
+<li><code>outputs/trade_outcomes.png</code></li>
+</ul>
+<section id="code-availability" class="level2">
+<h2 class="anchored" data-anchor-id="code-availability">Code Availability</h2>
+<p><a href="breakout_strategy.html">View full notebook/code walkthrough</a></p>
+
+
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
